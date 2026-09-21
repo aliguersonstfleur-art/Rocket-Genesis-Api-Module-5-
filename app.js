@@ -29,6 +29,7 @@ app.use(express.json());
 * ROUTE IMPORTS
 ***************/
 import healthRoutes from "./src/routes/health.routes.js";
+import MongoManager from "./mongo-manager.js";
 // ... add more routes here as you build them
 
 
@@ -56,6 +57,8 @@ app.use('*', (req, res) => {
 /* **************
  * SERVER STARTUP
  ****************/
+MongoManager.openMongoConnection();
+
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📍 Environment: ${ENV || 'development'}`);
