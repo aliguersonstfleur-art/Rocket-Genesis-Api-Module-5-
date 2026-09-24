@@ -44,42 +44,42 @@ Allow the Rocket Elevators application to create, read, update, and delete agent
 ### FR-01 — Create Agent
 
 **Requirement:**
-The API must allow a new agent to be created by submitting agent data in the request body.
+The API must allow a new agent to be created via `POST /agent-create`. Required fields are `first_name`, `last_name`, `email`, and `region`. All other fields use default values; `sales` defaults to `0`.
 
 **Expected Result:**
-A new agent document is saved in MongoDB and returned in the response with a generated ID.
+A new agent document is saved in MongoDB with `sales` initialized to 0, and the response communicates confirmation status.
 
 ### FR-02 — Retrieve All Agents
 
 **Requirement:**
-The API must allow retrieval of the full list of agents.
+The API must allow retrieval of all agents via `GET /agents`, sorted alphabetically by `last_name`.
 
 **Expected Result:**
-All agent documents currently stored in MongoDB are returned as a list.
+All agent documents currently stored in MongoDB are returned as a list, sorted alphabetically by `last_name`.
 
-### FR-03 — Retrieve Single Agent
+### FR-03 — Retrieve Agents By Region
 
 **Requirement:**
-The API must allow retrieval of one agent by its ID.
+The API must allow retrieval of agents filtered by region via `GET /agents-by-region`, using a required `region` query parameter, sorted by `rating`.
 
 **Expected Result:**
-The matching agent document is returned, or a not-found response if no agent has that ID.
+All agents matching the given region are returned, sorted by `rating`.
 
-### FR-04 — Update Agent
+### FR-04 — Update Agent Info
 
 **Requirement:**
-The API must allow updating an existing agent's fields by ID.
+The API must allow updating an existing agent via `PUT`/`PATCH /agent-update-info`. Only `first_name`, `last_name`, `email`, and `region` may be updated.
 
 **Expected Result:**
-The agent document is updated in MongoDB and the updated version is returned.
+The agent document is updated in MongoDB and the updated version is returned. If the agent does not exist, an error is returned.
 
 ### FR-05 — Delete Agent
 
 **Requirement:**
-The API must allow deleting an agent by ID.
+The API must allow deleting an agent via `DELETE /agent-delete`, accepting any valid parameters to locate the agent. Before deleting, the query must match exactly one agent.
 
 **Expected Result:**
-The agent document is removed from MongoDB and a confirmation is returned.
+If the query matches exactly one agent, that agent is deleted and confirmed. If it matches zero or multiple agents, no deletion occurs and a specific error message is returned.
 
 ---
 
@@ -87,15 +87,18 @@ The agent document is removed from MongoDB and a confirmation is returned.
 
 **Main flow**
 
-1. Client sends a request to an agent endpoint (create, read, update, or delete) via Postman.
-2. The route passes the request to the agent controller.
-3. The controller calls the Agent model to perform the requested database operation.
-4. The controller returns the result (agent data or confirmation) as a JSON response.
+1. Client sends a request (with a valid access token) to an agent endpoint via Postman.
+2. Auth middleware verifies the access token before the request reaches the controller.
+3. The route passes the request to the agent controller.
+4. The controller calls the Agent model to perform the requested database operation.
+5. The controller returns the result (agent data or confirmation) as a JSON response.
 
 **Alternate / failure flow**
 
-1. If the agent ID does not exist (read, update, delete), the API returns a 404 response with an error message.
-2. If required fields are missing or invalid on create/update, the API returns a 400 response with an error message.
+1. If the access token is missing or invalid, the API returns a 401/403 response before reaching the controller.
+2. If the agent being updated does not exist, the API returns an error response.
+3. If a delete query matches zero or more than one agent, the API returns a specific error message and does not delete anything.
+4. If required fields are missing on create, the API returns a 400 response with an error message.
 
 ---
 
@@ -107,17 +110,20 @@ The agent document is removed from MongoDB and a confirmation is returned.
 
 ### Components
 
-- `src/controllers/agent.controller.js` *(new)* - handles agent request logic
-- `src/routes/agent.routes.js` *(new)* - defines agent endpoints
-- `src/models/agent.model.js` *(new)* - Mongoose schema/model for Agent
+- `src/controllers/agent.controller.js` *(built)* - handles agent request logic
+- `src/routes/agent.routes.js` *(built)* - defines agent endpoints
+- `src/models/agent.model.js` *(built)* - Mongoose schema/model for Agent
+- Auth middleware *(not yet built, shared with other protected routes)* - validates access tokens
 
 ### Endpoints
 
-- `POST` `/agents` - create a new agent
-- `GET` `/agents` - retrieve all agents
-- `GET` `/agents/:id` - retrieve one agent by ID
-- `PUT` `/agents/:id` - update an agent by ID
-- `DELETE` `/agents/:id` - delete an agent by ID
+- `POST` `/agent-create` - create a new agent (requires `first_name`, `last_name`, `email`, `region`; `sales` defaults to 0)
+- `GET` `/agents` - retrieve all agents, sorted alphabetically by `last_name`
+- `GET` `/agents-by-region` - retrieve agents for a given `region` (query param), sorted by `rating`
+- `PUT`/`PATCH` `/agent-update-info` - update `first_name`, `last_name`, `email`, or `region` on an existing agent
+- `DELETE` `/agent-delete` - delete an agent matched by query parameters, only if exactly one agent matches
+
+All endpoints require a valid access token.
 
 ---
 
@@ -125,18 +131,19 @@ The agent document is removed from MongoDB and a confirmation is returned.
 
 ### Inputs
 
-- `first_name` (text, required) - agent's first name
-- `last_name` (text, required) - agent's last name
-- `email` (text, required) - agent's email
-- `region` (text, required) - region the agent belongs to
-- `rating` (number) - agent's performance rating
-- `fee` (number) - agent's fee
-- `manager` (boolean) - whether the agent is a manager
+- `first_name` (text, required on create) - agent's first name
+- `last_name` (text, required on create) - agent's last name
+- `email` (text, required on create) - agent's email
+- `region` (text, required on create) - region the agent belongs to
+- `rating` (number, optional, default TBD) - agent's performance rating
+- `fee` (number, optional, default TBD) - agent's fee
+- `sales` (number, defaults to 0) - agent's sales total
+- `manager` (boolean, optional, default TBD) - whether the agent is a manager
 
 ### Outputs / Returned Data
 
 - Single agent object or array of agent objects, shaped as above plus MongoDB's `_id`
-- HTTP status code reflecting the result (200/201 success, 400 invalid input, 404 not found)
+- HTTP status code reflecting the result, plus a confirmation status message on create/update/delete
 
 ### Stored / Modified Data
 
@@ -146,9 +153,10 @@ The agent document is removed from MongoDB and a confirmation is returned.
 
 ## 7. Validation
 
-- **first_name, last_name, email, region:** required - checked on server - on failure: 400 response, agent not saved
-- **email:** must be a valid email format - checked on server - on failure: 400 response
-- **id (update/delete/read one):** must reference an existing agent - checked on server - on failure: 404 response
+- **first_name, last_name, email, region (create):** required - checked on server - on failure: 400 response, agent not saved
+- **access token (all routes):** must be present and valid - checked on server (middleware) - on failure: 401/403 response
+- **agent-update-info:** only `first_name`, `last_name`, `email`, `region` may change; agent must already exist - checked on server - on failure: error response, no update applied
+- **agent-delete:** the query must resolve to exactly one agent - checked on server - on failure: specific error message, no deletion
 
 ---
 
@@ -156,26 +164,31 @@ The agent document is removed from MongoDB and a confirmation is returned.
 
 ### Success Behavior
 
-- Create: new agent is returned with a 201 status
-- Read (all/one): matching agent data returned with a 200 status
-- Update: updated agent returned with a 200 status
-- Delete: confirmation message returned with a 200 status
+- Create: new agent saved with `sales` = 0, response confirms success
+- Read all: full agent list returned, sorted alphabetically by `last_name`
+- Read by region: matching agents returned, sorted by `rating`
+- Update: allowed fields updated, updated agent returned
+- Delete: single matched agent removed, confirmation returned
 
 ### Error / Invalid Behavior
 
-- Missing/invalid required fields on create or update return a 400 response and no database change occurs
-- Requests referencing a non-existent agent ID return a 404 response
+- Missing required fields on create returns a 400 response and no database change occurs
+- Update on a non-existent agent returns an error and no database change occurs
+- Delete query matching zero or multiple agents returns a specific error and no deletion occurs
+- Missing/invalid access token returns 401/403 before reaching the controller
 
 ### Empty / Edge Cases
 
-- Retrieving all agents when none exist returns an empty list with a 200 status, not an error
+- `GET /agents` when no agents exist returns an empty list with a 200 status, not an error
+- `GET /agents-by-region` for a region with no agents returns an empty list, not an error
 
 ---
 
 ## 9. Acceptance Criteria
 
-- [ ] Submitting valid agent data to `POST /agents` creates the agent and returns it with a 201 status (FR-01)
-- [ ] `GET /agents` returns every agent currently stored (FR-02)
-- [ ] `GET /agents/:id` returns the correct agent for a valid ID, and a 404 for an invalid ID (FR-03)
-- [ ] `PUT /agents/:id` updates the agent's fields and returns the updated agent (FR-04)
-- [ ] `DELETE /agents/:id` removes the agent and returns a confirmation (FR-05)
+- [x] Submitting valid required fields to `POST /agent-create` creates the agent with `sales` = 0 and returns confirmation (FR-01)
+- [x] `GET /agents` returns every agent, sorted alphabetically by `last_name` (FR-02)
+- [x] `GET /agents-by-region?region=...` returns only matching agents, sorted by `rating` (FR-03)
+- [x] `PUT`/`PATCH /agent-update-info` updates only the allowed fields, and returns an error if the agent doesn't exist (FR-04)
+- [x] `DELETE /agent-delete` deletes only when exactly one agent matches, and returns a specific error otherwise (FR-05)
+- [ ] All five endpoints reject requests without a valid access token — **not yet implemented**

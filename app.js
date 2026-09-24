@@ -29,6 +29,7 @@ app.use(express.json());
 * ROUTE IMPORTS
 ***************/
 import healthRoutes from "./src/routes/health.routes.js";
+import agentRoutes from "./src/routes/agent.routes.js";
 import MongoManager from "./mongo-manager.js";
 // ... add more routes here as you build them
 
@@ -37,6 +38,7 @@ import MongoManager from "./mongo-manager.js";
 * MOUNT ROUTES
 ***************/
 healthRoutes.healthRoutes(app);
+agentRoutes.agentRoutes(app);
 // ... add more mount routes here as you build them
 
 
