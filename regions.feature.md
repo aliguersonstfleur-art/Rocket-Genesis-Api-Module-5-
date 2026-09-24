@@ -1,4 +1,9 @@
- # Feature Specification — Region CRUD
+{
+    "success": false,
+    "error": "Route not found",
+    "message": "GET /agent-update-info does not exist",
+    "timestamp": "2026-09-24T16:19:08.436Z"
+} # Feature Specification — Region CRUD
 
 **This document specifies one single feature. Read `ai-spec.md` first.**
 
@@ -94,10 +99,10 @@ One agent per region (the agent with the highest `sales` in that region) is retu
 
 ### Components
 
-- `src/controllers/region.controller.js` *(new)* - handles region request logic
-- `src/routes/region.routes.js` *(new)* - defines region endpoints
-- `src/models/region.model.js` *(new)* - Mongoose schema/model for Region
-- Agent model/logic *(existing, from `agents.feature.md`)* - reused to create each region's manager agent
+- `src/controllers/region.controller.js` *(built)* - handles region request logic
+- `src/routes/region.routes.js` *(built)* - defines region endpoints
+- `src/models/region.model.js` *(built)* - Mongoose schema/model for Region
+- Agent model/logic *(built, from `agents.feature.md`)* - reused to create each region's manager agent
 
 ### Endpoints
 
@@ -157,8 +162,8 @@ All endpoints require a valid access token.
 
 ## 9. Acceptance Criteria
 
-- [ ] `POST /region-create` creates the region with a manager agent, correct `top_agents`, and correct `total_sales` (FR-01)
-- [ ] `POST /region-create` returns an error and creates nothing if the region already exists (FR-01)
-- [ ] `GET /region?region=...` returns exactly one matching region record, with no duplicates (FR-02)
-- [ ] `GET /all-stars` returns exactly one top-selling agent per region (FR-03)
-- [ ] All three endpoints reject requests without a valid access token
+- [x] `POST /region-create` creates the region with a manager agent, correct `top_agents`, and correct `total_sales` (FR-01)
+- [x] `POST /region-create` returns an error and creates nothing if the region already exists (FR-01)
+- [x] `GET /region?region=...` returns exactly one matching region record, with no duplicates (FR-02)
+- [x] `GET /all-stars` returns exactly one top-selling agent per region (FR-03)
+- [x] All three endpoints reject requests without a valid access token

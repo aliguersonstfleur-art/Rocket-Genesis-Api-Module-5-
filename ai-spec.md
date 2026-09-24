@@ -41,8 +41,8 @@
 
 - `health.feature.md` - health check endpoint (existing)
 - `agents.feature.md` - agent CRUD (built and tested; auth not yet applied)
-- `regions.feature.md` - region CRUD (planned, not yet started)
-- `auth.feature.md` - authentication/authorization middleware (planned, not yet started)
+- `regions.feature.md` - region CRUD (built and tested)
+- `auth.feature.md` - authentication/authorization middleware (implemented in `baseMiddleware.js`)
 
 ---
 
@@ -57,7 +57,7 @@ An Express.js REST API following an MVC-style structure. Routes receive HTTP req
 - `/src/controllers` - business logic per resource, one file per feature (e.g. `health.controller.js`, `agent.controller.js`)
 - `/src/routes` - route definitions, one file per feature, mounted in `app.js`
 - `/src/models` - Mongoose schemas/models, one file per resource (e.g. `agent.model.js`)
-- `/src/shared/resources` - reusable data/config (e.g. legacy mock data, pricing config)
+- `/src/shared/resources` - reusable data/config and middleware (e.g. legacy mock data, pricing config, access-token middleware)
 - `/mongo-manager.js` - MongoDB Atlas connection setup via Mongoose
 - `/app.js` - application entry point: loads env vars, middleware, routes, starts the server
 - `/.env` - environment variables (never committed)
@@ -67,7 +67,7 @@ An Express.js REST API following an MVC-style structure. Routes receive HTTP req
 - **Routes:** define HTTP method + path + which controller handles it. Must not contain business logic.
 - **Controllers:** handle requests, call Mongoose models, return HTTP responses. Must not define routes.
 - **Models:** define Mongoose schemas (e.g. `Agent`). Controllers use models; models never import Express.
-- **Shared:** reusable resources only. Must not contain route- or feature-specific logic.
+- **Shared:** reusable resources and middleware only. Must not contain controller business logic.
 
 ### Running the Project
 

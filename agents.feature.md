@@ -113,7 +113,7 @@ If the query matches exactly one agent, that agent is deleted and confirmed. If 
 - `src/controllers/agent.controller.js` *(built)* - handles agent request logic
 - `src/routes/agent.routes.js` *(built)* - defines agent endpoints
 - `src/models/agent.model.js` *(built)* - Mongoose schema/model for Agent
-- Auth middleware *(not yet built, shared with other protected routes)* - validates access tokens
+- `src/shared/middleware/baseMiddleware.js` *(built)* - validates access tokens
 
 ### Endpoints
 
@@ -191,4 +191,4 @@ All endpoints require a valid access token.
 - [x] `GET /agents-by-region?region=...` returns only matching agents, sorted by `rating` (FR-03)
 - [x] `PUT`/`PATCH /agent-update-info` updates only the allowed fields, and returns an error if the agent doesn't exist (FR-04)
 - [x] `DELETE /agent-delete` deletes only when exactly one agent matches, and returns a specific error otherwise (FR-05)
-- [ ] All five endpoints reject requests without a valid access token — **not yet implemented**
+- [x] All five endpoints reject requests without a valid access token
