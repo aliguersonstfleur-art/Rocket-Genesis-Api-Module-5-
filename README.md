@@ -30,8 +30,8 @@ The API is designed for Rocket Elevators staff and is tested with Postman. It su
 	│   ├── health.controller.js
 	│   └── region.controller.js
 	├── models
-	│   ├── agent.model.js
-	│   └── region.model.js
+	│   ├── agent.schema.js
+	│   └── region.schema.js
 	├── routes
 	│   ├── agent.routes.js
 	│   ├── health.routes.js
@@ -41,6 +41,10 @@ The API is designed for Rocket Elevators staff and is tested with Postman. It su
 		│   └── baseMiddleware.js
 		└── resources
 			└── data.js
+├── ai
+│   ├── ai-spec.md
+│   └── features
+│       └── schemas.feature.md
 ```
 
 - **Controllers:** contain request and database logic.

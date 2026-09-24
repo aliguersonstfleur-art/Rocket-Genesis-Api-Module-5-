@@ -1,7 +1,7 @@
 /* *******************
  * MODEL IMPORT
  *********************/
-import Agent from '../models/agent.model.js';
+import Agent from '../models/agent.schema.js';
 
 /* ***************
  * ROUTE HANDLERS
