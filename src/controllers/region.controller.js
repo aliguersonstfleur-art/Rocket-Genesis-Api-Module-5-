@@ -1,5 +1,5 @@
-import Agent from '../models/agent.model.js';
-import Region from '../models/region.model.js';
+import Agent from '../models/agent.schema.js';
+import Region from '../models/region.schema.js';
 
 const createRegion = async (req, res) => {
     try {
