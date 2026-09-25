@@ -24,27 +24,41 @@ The API is designed for Rocket Elevators staff and is tested with Postman. It su
 ├── mongo-manager.js
 ├── package.json
 ├── .env
-└── src
-	├── controllers
-	│   ├── agent.controller.js
-	│   ├── health.controller.js
-	│   └── region.controller.js
-	├── models
-	│   ├── agent.schema.js
-	│   └── region.schema.js
-	├── routes
-	│   ├── agent.routes.js
-	│   ├── health.routes.js
-	│   └── region.routes.js
-	└── shared
-		├── middleware
-		│   └── baseMiddleware.js
-		└── resources
-			└── data.js
 ├── ai
 │   ├── ai-spec.md
 │   └── features
-│       └── schemas.feature.md
+│       ├── schemas.feature.md
+│       ├── post-agent-create.feature.md
+│       ├── get-agents.feature.md
+│       ├── get-agents-by-region.feature.md
+│       ├── put-agent-update.feature.md
+│       ├── delete-agent.feature.md
+│       ├── post-region-create.feature.md
+│       ├── get-region.feature.md
+│       ├── get-all-stars.feature.md
+│       ├── module-four-endpoints.feautre.md
+│       └── middleware.feature.md
+└── src
+    ├── controllers
+    │   ├── agent.controller.js
+    │   ├── health.controller.js
+    │   ├── moduleFour.controller.js
+    │   └── region.controller.js
+    ├── models
+    │   ├── agent.schema.js
+    │   ├── contact.schema.js
+    │   └── region.schema.js
+    ├── routes
+    │   ├── agent.routes.js
+    │   ├── health.routes.js
+    │   ├── moduleFour.routes.js
+    │   └── region.routes.js
+    └── shared
+        ├── middleware
+        │   ├── baseMiddleware.js
+        │   └── loggerMiddleware.js
+        └── resources
+            └── data.js
 ```
 
 - **Controllers:** contain request and database logic.
@@ -104,11 +118,17 @@ Protected endpoints require this header:
 Authorization: your-access-token
 ```
 
-### Health
+### Health and Module 4 Endpoints
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `GET` | `/hello` | Health check. |
+| Method | Endpoint | Auth required | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/hello` | No | Health check. |
+| `GET` | `/status` | No | Server status and uptime. |
+| `GET` | `/error` | No | Deliberately triggers a handled error. |
+| `GET` | `/email-list` | Yes | Returns every Agent's email from MongoDB. |
+| `GET` | `/region-avg?region=North` | Yes | Average rating and fee for a region. |
+| `POST` | `/calc-residential` | Yes | Calculates a residential quote (`tier`, `units`). |
+| `POST` | `/contact-us` | Yes | Saves a contact message to MongoDB. |
 
 ### Agents
 
@@ -124,9 +144,15 @@ Authorization: your-access-token
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `POST` | `/region-create` | Create a North, East, South, or West Region. |
+| `POST` | `/region-create` | Create one region (`{ "region": "North" }`) or all four regions (empty body). |
 | `GET` | `/region?region=North` | Return one Region and its Agent references. |
 | `GET` | `/all-stars` | Return the highest-sales Agent for each Region. |
+
+All Agent and Region endpoints above require the `Authorization` header.
+
+## Git Workflow
+
+This project follows a `main` → `dev` → `feature/*` branching model. Feature branches are created from `dev`, merged back into `dev` when complete, and `dev` is merged into `main` only once the module is ready for submission. Only `main` is graded.
 
 ## Author
 
