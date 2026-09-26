@@ -1,0 +1,203 @@
+{
+  "info": {
+    "_postman_id": "bd1ff4b0-9f25-4f4a-a157-rocket-genesis-module-5",
+    "name": "Rocket Genesis API - Module 5",
+    "description": "Complete Module 5 API collection. Set the accessToken collection variable to the ACCESS_TOKEN value from your local .env before running protected requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3004", "type": "string" },
+    { "key": "accessToken", "value": "SET_FROM_LOCAL_ENV", "type": "string" },
+    { "key": "agentId", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "Authorization", "type": "string" },
+      { "key": "value", "value": "{{accessToken}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "item": [
+    {
+      "name": "Public Endpoints",
+      "item": [
+        {
+          "name": "GET Hello",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/hello" }
+        },
+        {
+          "name": "GET Status",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/status" }
+        },
+        {
+          "name": "GET Error",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/error" }
+        }
+      ]
+    },
+    {
+      "name": "Agent Endpoints",
+      "item": [
+        {
+          "name": "POST Create Agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('agentId', body.data._id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Agent\",\n  \"email\": \"postman.agent@rocket.elv\",\n  \"region\": \"North\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/agent-create"
+          }
+        },
+        {
+          "name": "GET All Agents",
+          "request": { "method": "GET", "url": "{{baseUrl}}/agents" }
+        },
+        {
+          "name": "GET Agents By Region",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/agents-by-region?region=North",
+              "host": ["{{baseUrl}}"],
+              "path": ["agents-by-region"],
+              "query": [{ "key": "region", "value": "North" }]
+            }
+          }
+        },
+        {
+          "name": "PATCH Update Agent",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"_id\": \"{{agentId}}\",\n  \"first_name\": \"Updated Postman\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/agent-update-info"
+          }
+        },
+        {
+          "name": "DELETE Agent",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/agent-delete?_id={{agentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent-delete"],
+              "query": [{ "key": "_id", "value": "{{agentId}}" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Region Endpoints",
+      "item": [
+        {
+          "name": "POST Create All Regions",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/region-create"
+          }
+        },
+        {
+          "name": "POST Create North Region",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"region\": \"North\",\n  \"address\": \"North Regional Office\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/region-create"
+          }
+        },
+        {
+          "name": "GET Region",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/region?region=North",
+              "host": ["{{baseUrl}}"],
+              "path": ["region"],
+              "query": [{ "key": "region", "value": "North" }]
+            }
+          }
+        },
+        {
+          "name": "GET All Stars",
+          "request": { "method": "GET", "url": "{{baseUrl}}/all-stars" }
+        }
+      ]
+    },
+    {
+      "name": "Module 4 Endpoints",
+      "item": [
+        {
+          "name": "GET Email List",
+          "request": { "method": "GET", "url": "{{baseUrl}}/email-list" }
+        },
+        {
+          "name": "GET Region Average",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/region-avg?region=North",
+              "host": ["{{baseUrl}}"],
+              "path": ["region-avg"],
+              "query": [{ "key": "region", "value": "North" }]
+            }
+          }
+        },
+        {
+          "name": "POST Calculate Residential",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tier\": \"standard\",\n  \"units\": 3\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/calc-residential"
+          }
+        },
+        {
+          "name": "POST Contact Us",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Tester\",\n  \"email\": \"postman@rocket.elv\",\n  \"message\": \"Module 5 contact endpoint test\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/contact-us"
+          }
+        }
+      ]
+    }
+  ]
+}

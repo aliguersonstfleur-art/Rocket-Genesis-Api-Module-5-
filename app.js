@@ -22,13 +22,19 @@ const app = express();
 /* ***********************
  * GLOBAL MIDDLEWARE SETUP
  *************************/
+import loggerMiddleware from "./src/shared/middleware/loggerMiddleware.js";
 app.use(express.json());
+app.use(loggerMiddleware);
 
 
 /* *************
 * ROUTE IMPORTS
 ***************/
 import healthRoutes from "./src/routes/health.routes.js";
+import agentRoutes from "./src/routes/agent.routes.js";
+import regionRoutes from "./src/routes/region.routes.js";
+import moduleFourRoutes from "./src/routes/moduleFour.routes.js";
+import MongoManager from "./mongo-manager.js";
 // ... add more routes here as you build them
 
 
@@ -36,6 +42,9 @@ import healthRoutes from "./src/routes/health.routes.js";
 * MOUNT ROUTES
 ***************/
 healthRoutes.healthRoutes(app);
+agentRoutes.agentRoutes(app);
+regionRoutes.regionRoutes(app);
+moduleFourRoutes.moduleFourRoutes(app);
 // ... add more mount routes here as you build them
 
 
@@ -56,6 +65,8 @@ app.use('*', (req, res) => {
 /* **************
  * SERVER STARTUP
  ****************/
+MongoManager.openMongoConnection();
+
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`📍 Environment: ${ENV || 'development'}`);
